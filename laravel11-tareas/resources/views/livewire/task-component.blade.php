@@ -1,4 +1,4 @@
-<div>
+<div wire:poll="getTask">
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
@@ -29,8 +29,16 @@
                                     {{$task->description}}
                                 </td>
                                 <td class="p-3 px-5 flex justify-center">
-                                    <button type="button" wire:click="openCreateModal({{$task}})" class="mr-3 text-sm bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline">Actualizar</button>
-                                    <button type="button" wire:click="deleteTask({{$task}})" class="text-sm bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline">Eliminar</button>
+                                    @if ((isset($task->pivot)&& ($task->pivot->permission=='edit')) || auth()->user()->id == $task->user_id)
+                                        
+                                        <button type="button" wire:click="openCreateModal({{$task}})" class="mr-3 text-sm bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline">Actualizar</button>
+                                        <button type="button" wire:click="deleteTask({{$task}})" class="text-sm mr-3 bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline" wire:confirm="¿Deseas borrar la tarea?"
+                                        >
+                                            Eliminar
+                                        </button>
+                                        <button type="button" wire:click="openShareModal({{$task}})" class="text-sm bg-yellow-500 hover:bg-yellow-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline">Compartir</button>
+
+                                    @endif
                                 </td>
                             </tr>
 
@@ -79,6 +87,52 @@
                     </button>
                         <button class="p-3 bg-white border rounded-full w-full font-semibold"
                         wire:click="closeCreateModal">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    <!-- component MODAL -->
+    @if ($modalShare)
+    <div class="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 py-10">
+        <div class="max-h-full w-full max-w-xl overflow-y-auto sm:rounded-2xl bg-white">
+            <div class="w-full">
+                <div class="m-8 my-20 max-w-[400px] mx-auto">
+                    <div class="mb-8">
+                        <h1 class="mb-4 text-3xl font-extrabold">Compartir Tarea</h1>
+                        <form>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="user_id" class="block text-sm font-medium text-gray-700">Título</label>
+                                   <select wire:model="user_id" name="" id="" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <option value="">Seleccione un usuario</option>
+                                            @foreach ($users as $user)
+                                                <option value="{{$user->id}}">{{$user->name}}</option>
+                                            @endforeach
+                                   </select>
+                                </div>
+                                <div>
+                                    <label for="permission" class="block text-sm font-medium text-gray-700">Descripción</label>
+                                    <select wire:model="permission" name="" id="permission" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <option value="">Seleccione un permiso</option>
+                                                <option value="view">Lectura</option>
+                                                <option value="edit">Editar</option>
+
+                                   </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="space-y-4">
+                        <button class="p-3 bg-black rounded-full text-white w-full font-semibold"
+                        wire:click="shareTask">
+                        Compatir
+                    </button>
+                        <button class="p-3 bg-white border rounded-full w-full font-semibold"
+                        wire:click="closeShareModal">
                             Cancelar
                         </button>
                     </div>
