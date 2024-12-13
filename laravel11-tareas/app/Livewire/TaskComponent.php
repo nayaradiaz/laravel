@@ -12,6 +12,8 @@ class TaskComponent extends Component
     public $tasks = [];
     public $modal = false;
     public $title;
+    public $id;
+    public $editingTask = null;
     public $description;
     public function render()
     {
@@ -28,11 +30,28 @@ class TaskComponent extends Component
     public function clearFields(){
         $this->title = '';
         $this->description = '';
+        $this->id='';
+        $this->editingTask =null;
     }
 
-    public function openCreateModal(){
-        $this->clearFields();
+    public function openCreateModal(Task $task = null){
+        if ($task) {
+            $this->editingTask =$task;
+            $this->title = $task->title;
+            $this->description = $task->description;
+            $this->id=$task->id;
+        }else{
+            $this->clearFields();
+
+        }
         $this->modal = true;
+    }
+    public function deleteTask(Task $task){
+        $task->delete();
+        $this->clearFields();
+        $this->closeCreateModal();
+        $this->getTask();
+        
     }
 
     public function closeCreateModal(){
@@ -40,11 +59,15 @@ class TaskComponent extends Component
     }
 
     public function createTask(){
-        Task::create([
-            'user_id' => Auth::id(),
-            'title' => $this->title,
-            'description' => $this->description
-        ]);
+        Task::UpdateOrCreate(
+            ['id'=> $this->editingTask->id],
+            [
+            
+                'user_id' => Auth::id(),
+                'title' => $this->title,
+                'description' => $this->description
+            ]);
+        $this->clearFields();
         $this->closeCreateModal();
         $this->getTask();
     }
