@@ -64,6 +64,6 @@ class User extends Authenticatable
      */
     public function sharedTasks(): BelongsToMany
     {
-        return $this->belongsToMany(Task::class, 'task_user');
+        return $this->belongsToMany(Task::class, 'task_user')->withPivot('permission');
     }
 }
